@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hút Thuốc Lá · Tra cứu request</title>
+<style>
+:root{color-scheme:light;--ink:#203f61;--muted:#5c7792;--blue:#315f91;--edge:#c9deef;--soft:#e8f3fc;--paper:#f8fcff}
+*{box-sizing:border-box}body{margin:0;background:#edf6fd;color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.65}
+button,input{font:inherit}button,a,input{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:wait;opacity:.65}
+.shell{max-width:1080px;margin:auto;padding:34px 24px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:24px;border-bottom:1px solid var(--edge)}
+.brand{font-size:20px;letter-spacing:-.7px;font-weight:700}.brand small{display:block;color:var(--muted);font-size:14px;font-weight:400;letter-spacing:0}
+nav{display:flex;gap:5px;padding:5px;border:1px solid var(--edge);border-radius:50px;background:#f8fcff}
+nav button{border:0;background:transparent;color:var(--muted);padding:9px 17px;border-radius:40px;font-weight:700;font-size:15px}
+nav button[aria-pressed=true]{background:#d3e8fa;color:var(--ink)}
+main{padding-top:45px}.intro{max-width:620px;margin-bottom:27px}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.14;letter-spacing:-1.7px;margin:0 0 14px}
+p{margin:0 0 18px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:24px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--edge);border-radius:22px;padding:28px}
+label{display:block;font-weight:700;margin-bottom:8px}label span{font-weight:400;color:var(--muted);font-size:14px}
+input{display:block;width:100%;border:1px solid #b5cee5;background:#eef7ff;border-radius:11px;padding:13px 15px;color:var(--ink);outline:none}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #d4e8f9}
+.hint{font-size:14px;margin:8px 0 21px;line-height:1.6}.primary{width:100%;padding:13px 20px;border:0;border-radius:11px;background:var(--blue);color:white;font-weight:700;margin-top:22px}
+.result{border-top:1px solid var(--edge);margin-top:25px;padding-top:20px}.result h2{font-size:20px;margin:0 0 10px}.result p{margin-bottom:12px}
+.result a,.open-link{display:inline-block;color:#234e7a;background:#d8ebfa;border:1px solid #b7d3eb;border-radius:10px;padding:9px 16px;text-decoration:none;font-weight:700}
+aside h2{font-size:18px;margin:0 0 10px}aside p{font-size:15px}aside p:last-child{margin-bottom:0}
+.status-key{border-top:1px solid var(--edge);padding-top:18px;margin-top:18px}
+.status-key div{font-size:14px;color:var(--muted);margin:8px 0}.status-key strong{display:block;font-size:14px;color:var(--ink)}
+footer{border-top:1px solid var(--edge);margin-top:40px;padding-top:18px;font-size:14px;color:var(--muted)}
+[hidden]{display:none!important}.gallery-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}
+.gallery-top p{margin:0}.secondary{border:1px solid var(--edge);border-radius:9px;background:#f8fcff;color:var(--ink);padding:8px 14px;white-space:nowrap}
+.gallery-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.job{background:var(--paper);border:1px solid var(--edge);border-radius:17px;padding:23px}.job h2{font-size:20px;line-height:1.4;margin:0 0 18px;overflow-wrap:anywhere}
+.empty{padding:32px;border:1px dashed #a9c8e4;border-radius:17px;background:#f5faff;color:var(--muted)}
+a:focus-visible,button:focus-visible{outline:3px solid #6a9bce;outline-offset:3px}
+@media(max-width:700px){.shell{padding:22px 18px 30px}header{align-items:flex-start;flex-direction:column;padding-bottom:20px}nav{width:100%}nav button{flex:1}main{padding-top:32px}.layout,.gallery-list{grid-template-columns:1fr}.card{padding:23px}h1{letter-spacing:-1px}.gallery-top{align-items:flex-start}footer{margin-top:28px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header><div class="brand">Hút Thuốc Lá<small>Char & open world theo idea của bạn</small></div>
+<nav aria-label="Chuyển trang"><button id="lookup-tab" type="button" aria-pressed="true">Tra cứu request</button><button id="gallery-tab" type="button" aria-pressed="false">Chơi ké</button></nav></header>
+<main>
+<section id="lookup-panel" aria-labelledby="lookup-title">
+<div class="intro"><h1 id="lookup-title">Request của bạn<br>tới đâu rồi?</h1><p>Nhập mã đã điền trong form để xem tình trạng, lượt chờ và nhận link khi tui làm xong nha.</p></div>
+<div class="layout">
+<div class="card">
+<form id="lookup-form">
+<label for="lookup-key">Mã request hoặc thông tin dự phòng</label>
+<input id="lookup-key" name="lookupKey" required maxlength="300" autocomplete="off" spellcheck="false" placeholder="Nhập thông tin của bạn">
+<p class="hint">Quên mã thì dùng đúng tên FB hoặc nickname bạn đã điền ở câu 2 trong phần Thông tin nhận link.</p>
+<label for="request-name">Tên request <span>· điền thêm nếu thông tin bị trùng</span></label>
+<input id="request-name" name="requestName" maxlength="300" autocomplete="off" placeholder="Tên char hoặc world đã điền trong form">
+<button class="primary" id="lookup-submit" type="submit">Xem tình trạng</button>
+</form>
+<div class="result" id="lookup-result" role="status" aria-live="polite" hidden><h2 id="result-title"></h2><p id="result-message"></p><a id="result-link" target="_blank" rel="noopener noreferrer" hidden>Mở link thành phẩm</a></div>
+</div>
+<aside class="card"><h2>Gửi trước, làm trước</h2><p>Tui làm theo thứ tự nhận form. Số lượt chờ là các request phía trước vẫn đang chờ hoặc đang làm.</p><div class="status-key"><div><strong>ĐANG CHỜ</strong>Idea của bạn đang trong hàng chờ.</div><div><strong>ĐANG LÀM</strong>Tui đã bắt đầu build.</div><div><strong>DONE</strong>Đã xong. Có link là bạn vào chơi được.</div><div><strong>NO</strong>Tui không nhận làm request này.</div></div></aside>
+</div>
+</section>
+<section id="gallery-panel" aria-labelledby="gallery-title" hidden>
+<div class="intro"><h1 id="gallery-title">Vào chơi ké nha.</h1><p>Char và world đã hoàn thành từ idea của mọi người. Mỗi người một gu, bạn chơi cùng thì hoan hỉ nha ♡</p></div>
+<div class="gallery-top"><p>Yêu cầu chỉnh sửa bản custom cần mã riêng của người gửi request.</p><button type="button" class="secondary" id="gallery-refresh">Tải lại</button></div>
+<div id="gallery-message" class="empty" role="status" aria-live="polite"></div><div id="gallery-list" class="gallery-list"></div>
+</section>
+</main>
+<footer>Hút Thuốc Lá · Làm free để luyện viết prompt. Góp ý nhẹ nhàng với tui nha ♡</footer>
+</div>
+<script>
+const lookupPanel=document.getElementById("lookup-panel");
+const galleryPanel=document.getElementById("gallery-panel");
+const lookupTab=document.getElementById("lookup-tab");
+const galleryTab=document.getElementById("gallery-tab");
+let galleryLoaded=false;
+function showPanel(name){
+  const lookup=name==="lookup";
+  lookupPanel.hidden=!lookup;galleryPanel.hidden=lookup;
+  lookupTab.setAttribute("aria-pressed",String(lookup));
+  galleryTab.setAttribute("aria-pressed",String(!lookup));
+  if(!lookup&&!galleryLoaded)loadGallery();
+}
+lookupTab.addEventListener("click",()=>showPanel("lookup"));
+galleryTab.addEventListener("click",()=>showPanel("gallery"));
+function safeLink(value){
+  try{const url=new URL(value);return url.protocol==="https:"?url.href:"";}catch{return "";}
+}
+const lookupButton=document.getElementById("lookup-submit");
+const result=document.getElementById("lookup-result");
+const resultTitle=document.getElementById("result-title");
+const resultMessage=document.getElementById("result-message");
+const resultLink=document.getElementById("result-link");
+document.getElementById("lookup-form").addEventListener("submit",event=>{
+  event.preventDefault();
+  const key=document.getElementById("lookup-key").value.trim();
+  const name=document.getElementById("request-name").value.trim();
+  if(!key)return;
+  lookupButton.disabled=true;lookupButton.textContent="Đang tra cứu…";
+  result.hidden=false;resultTitle.textContent="Tui đang tìm request của bạn";resultMessage.textContent="";resultLink.hidden=true;resultLink.removeAttribute("href");
+  google.script.run.withSuccessHandler(data=>{
+    lookupButton.disabled=false;lookupButton.textContent="Xem tình trạng";
+    resultTitle.textContent=data.state;
+    resultMessage.textContent=data.queue||data.message||"";
+    const url=safeLink(data.link);
+    if(url){resultLink.href=url;resultLink.hidden=false;}
+  }).withFailureHandler(()=>{
+    lookupButton.disabled=false;lookupButton.textContent="Xem tình trạng";
+    resultTitle.textContent="Chưa tra cứu được";
+    resultMessage.textContent="Kết nối đang gián đoạn. Bạn thử lại sau một chút nha.";
+  }).traCuuWeb(key,name);
+});
+function loadGallery(){
+  const message=document.getElementById("gallery-message");
+  const list=document.getElementById("gallery-list");
+  const button=document.getElementById("gallery-refresh");
+  message.hidden=false;message.textContent="Đang lấy danh sách…";button.disabled=true;
+  google.script.run.withSuccessHandler(items=>{
+    button.disabled=false;galleryLoaded=true;list.replaceChildren();
+    const valid=items.filter(item=>safeLink(item.link));
+    message.textContent=valid.length?"":"Chưa có thành phẩm được đăng. Bạn ghé lại sau nha ♡";
+    message.hidden=valid.length>0;
+    valid.forEach(item=>{
+      const article=document.createElement("article");article.className="job";
+      const title=document.createElement("h2");title.textContent=item.name||"Char / Open world";
+      const link=document.createElement("a");link.className="open-link";link.textContent="Vào chơi";link.href=safeLink(item.link);link.target="_blank";link.rel="noopener noreferrer";
+      article.append(title,link);list.append(article);
+    });
+  }).withFailureHandler(()=>{
+    button.disabled=false;message.hidden=false;
+    message.textContent="Chưa tải được danh sách. Bạn bấm Tải lại giúp tui nha.";
+  }).danhSachChoiKe();
+}
+document.getElementById("gallery-refresh").addEventListener("click",loadGallery);
+</script>
+</body>
+</html>
