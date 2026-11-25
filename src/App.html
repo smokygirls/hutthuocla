@@ -237,7 +237,8 @@ function showPanel(name){
 document.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>showPanel(button.dataset.go)));
 document.getElementById('brand-home').addEventListener('click',()=>showPanel('home'));
 function rpcError(message){return 'Kết nối đang gián đoạn. Bạn thử tải lại sau một chút nha.';}
-let commentItems=[],replyTargetId='',commentLoadSeq=0;
+let commentItems=[],replyTargetId='',commentLoadSeq=0,commentRequest=null;
+function commentRequestId(){return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():'msg-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);}
 function cancelCommentReply(){
  replyTargetId='';
  document.getElementById('reply-context').hidden=true;
@@ -294,14 +295,17 @@ function loadComments(){
   if(seq!==commentLoadSeq)return;
   commentsLoaded=true;button.disabled=false;const count=renderComments(items);
   message.hidden=count>0;message.textContent='Chưa có cuộc trò chuyện. Mở lời với mọi người bằng bình luận đầu tiên nha.';
- }).withFailureHandler(()=>{if(seq!==commentLoadSeq)return;button.disabled=false;message.hidden=false;message.textContent=rpcError();}).docCongDong();
+ }).withFailureHandler(()=>{if(seq!==commentLoadSeq)return;button.disabled=false;message.hidden=false;message.textContent='Chưa tải được bình luận. Bạn bấm Tải lại để thử lại nha.';}).docCongDong();
 }
 document.getElementById('cancel-reply').addEventListener('click',cancelCommentReply);
 document.getElementById('comments-refresh').addEventListener('click',loadComments);
 document.getElementById('comment-form').addEventListener('submit',event=>{
  event.preventDefault();const button=document.getElementById('comment-submit'),feedback=document.getElementById('comment-feedback');button.disabled=true;feedback.textContent='Đang gửi…';
  const payload={name:document.getElementById('comment-name').value.trim(),text:document.getElementById('comment-text').value.trim(),website:document.getElementById('comment-website').value,parentId:replyTargetId};
- google.script.run.withSuccessHandler(data=>{button.disabled=false;feedback.textContent=data.message;if(data.ok){document.getElementById('comment-text').value='';cancelCommentReply();loadComments();}}).withFailureHandler(()=>{button.disabled=false;feedback.textContent=rpcError();}).guiBinhLuan(payload);
+ const fingerprint=JSON.stringify([payload.name,payload.text,payload.parentId]);
+ if(!commentRequest||commentRequest.fingerprint!==fingerprint)commentRequest={fingerprint: fingerprint,id:commentRequestId()};
+ payload.requestId=commentRequest.id;
+ google.script.run.withSuccessHandler(data=>{button.disabled=false;feedback.textContent=data.message;if(data.ok){if(document.getElementById('comment-text').value.trim()===payload.text)document.getElementById('comment-text').value='';commentRequest=null;cancelCommentReply();loadComments();}}).withFailureHandler(()=>{button.disabled=false;feedback.textContent='Chưa xác nhận được bình luận đã gửi. Nội dung vẫn còn trong ô; bạn có thể bấm gửi lại, hệ thống sẽ tránh đăng trùng.';}).guiBinhLuan(payload);
 });
 let charItems=[];
 function loadChars(){
