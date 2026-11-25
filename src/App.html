@@ -166,6 +166,21 @@ OTHER DEALINGS IN THE FONT SOFTWARE. */
 function safeLink(value){
   try{const url=new URL(value);return url.protocol==="https:"?url.href:"";}catch{return "";}
 }
+function coverLink(value){
+ const source=safeLink(String(value||'').trim());if(!source)return '';
+ try{
+  const url=new URL(source);
+  if(url.hostname==='drive.google.com'||url.hostname==='docs.google.com'){
+   const pathId=url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
+   const id=pathId?pathId[1]:url.searchParams.get('id');
+   if(!id||!/^[a-zA-Z0-9_-]+$/.test(id))return '';
+   const image=new URL('https://drive.google.com/thumbnail');image.searchParams.set('id',id);image.searchParams.set('sz','w1600');
+   const resourceKey=url.searchParams.get('resourcekey');if(resourceKey)image.searchParams.set('resourcekey',resourceKey);
+   return image.href;
+  }
+  return source;
+ }catch{return '';}
+}
 const lookupButton=document.getElementById("lookup-submit");
 const result=document.getElementById("lookup-result");
 const resultTitle=document.getElementById("result-title");
@@ -311,10 +326,10 @@ let charItems=[];
 function loadChars(){
  const message=document.getElementById('chars-message'),button=document.getElementById('chars-refresh');message.hidden=false;message.textContent='Đang tải char…';button.disabled=true;
  google.script.run.withSuccessHandler(items=>{charsLoaded=true;button.disabled=false;charItems=items;const grid=document.getElementById('char-grid');grid.replaceChildren();message.hidden=items.length>0;message.textContent='Tui chưa đăng char ở đây. Ảnh bìa, giới thiệu và link chơi sẽ được cập nhật sau.';
- items.forEach(item=>{const card=document.createElement('button');card.type='button';card.className='char-card';card.setAttribute('aria-label','Xem chi tiết '+item.name);const image=document.createElement('img');image.className='char-cover';image.alt='Ảnh bìa '+item.name;image.loading='lazy';image.src=safeLink(item.cover)||routes.originals.image;image.addEventListener('error',()=>{image.src=routes.originals.image;},{once:true});const body=document.createElement('div');body.className='char-card-body';const name=document.createElement('h3');name.textContent=item.name;const short=document.createElement('p');short.textContent=item.short;const more=document.createElement('span');more.className='more';more.textContent='Xem chi tiết';body.append(name,short,more);card.append(image,body);card.addEventListener('click',()=>showChar(item));grid.append(card);});
+ items.forEach(item=>{const card=document.createElement('button');card.type='button';card.className='char-card';card.setAttribute('aria-label','Xem chi tiết '+item.name);const image=document.createElement('img');image.className='char-cover';image.alt='Ảnh bìa '+item.name;image.loading='lazy';image.src=coverLink(item.cover)||routes.originals.image;image.addEventListener('error',()=>{image.src=routes.originals.image;},{once:true});const body=document.createElement('div');body.className='char-card-body';const name=document.createElement('h3');name.textContent=item.name;const short=document.createElement('p');short.textContent=item.short;const more=document.createElement('span');more.className='more';more.textContent='Xem chi tiết';body.append(name,short,more);card.append(image,body);card.addEventListener('click',()=>showChar(item));grid.append(card);});
  }).withFailureHandler(()=>{button.disabled=false;message.hidden=false;message.textContent=rpcError();}).danhSachCharTuTao();
 }
-function showChar(item){document.getElementById('originals-browse').hidden=true;document.getElementById('char-detail').hidden=false;document.getElementById('detail-title').textContent=item.name;const cover=document.getElementById('detail-cover');cover.src=safeLink(item.cover)||routes.originals.image;cover.alt='Ảnh bìa '+item.name;document.getElementById('detail-intro').textContent=item.intro||item.short||'Đang cập nhật.';document.getElementById('detail-background').textContent=item.background||'Đang cập nhật.';const link=document.getElementById('detail-play');const url=safeLink(item.link);link.hidden=!url;link.removeAttribute('href');if(url)link.href=url;document.getElementById('detail-no-link').hidden=!!url;}
+function showChar(item){document.getElementById('originals-browse').hidden=true;document.getElementById('char-detail').hidden=false;document.getElementById('detail-title').textContent=item.name;const cover=document.getElementById('detail-cover');cover.src=coverLink(item.cover)||routes.originals.image;cover.alt='Ảnh bìa '+item.name;document.getElementById('detail-intro').textContent=item.intro||item.short||'Đang cập nhật.';document.getElementById('detail-background').textContent=item.background||'Đang cập nhật.';const link=document.getElementById('detail-play');const url=safeLink(item.link);link.hidden=!url;link.removeAttribute('href');if(url)link.href=url;document.getElementById('detail-no-link').hidden=!!url;}
 document.getElementById('detail-back').addEventListener('click',()=>{document.getElementById('originals-browse').hidden=false;document.getElementById('char-detail').hidden=true;});
 document.getElementById('chars-refresh').addEventListener('click',loadChars);
 let promptsLoaded=false,promptItems=[],promptCategory='Tất cả';
