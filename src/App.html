@@ -333,7 +333,7 @@ function showChar(item){document.getElementById('originals-browse').hidden=true;
 document.getElementById('detail-back').addEventListener('click',()=>{document.getElementById('originals-browse').hidden=false;document.getElementById('char-detail').hidden=true;});
 document.getElementById('chars-refresh').addEventListener('click',loadChars);
 let promptsLoaded=false,promptItems=[],promptCategory='Tất cả';
-const promptCategories=['Tất cả','Hướng dẫn người mới','Chuyển sinh','Chống OOC','Thức tỉnh','Khác'];
+const promptCategories=['Tất cả'];
 const promptFilters=document.getElementById('prompt-filters');
 promptCategories.forEach(category=>{const button=document.createElement('button');button.type='button';button.className='filter-button';button.textContent=category;button.setAttribute('aria-pressed',String(category===promptCategory));button.addEventListener('click',()=>{promptCategory=category;renderPrompts();});promptFilters.append(button);});
 function loadPrompts(){
